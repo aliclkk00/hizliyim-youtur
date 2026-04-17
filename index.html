@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Youtur Systems v4.8</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React ve ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        .glass-input {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .glass-button {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.8) 0%, rgba(79, 70, 229, 0.8) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Special Shine Button */
+        .shine-button {
+            background: linear-gradient(to right, rgba(30, 58, 138, 0.5), rgba(0, 0, 0, 0.8));
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .shine-effect {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: skewX(-20deg);
+            animation: shine-sweep 3s infinite ease-in-out;
+        }
+
+        /* Custom Range Slider */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 24px;
+            width: 24px;
+            border-radius: 50%;
+            background: #ffffff;
+            cursor: pointer;
+            margin-top: -10px; 
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+        }
+
+        /* SVG Snake Border Animation */
+        .snake-border-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            border-radius: 2.5rem;
+            overflow: visible;
+        }
+        
+        .snake-border-rect {
+            fill: none;
+            stroke-width: 2px;
+            stroke-linecap: round;
+            stroke-dasharray: 200, 1000; 
+            animation: snake-rotate 8s linear infinite;
+        }
+        
+        .snake-border-rect.blue { stroke: url(#blue-gradient); }
+        .snake-border-rect.orange { stroke: #f97316; filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.8)); }
+        .snake-border-rect.red { stroke: #ef4444; filter: drop-shadow(0 0 8px rgba(239, 68, 68, 1)); }
+
+        @keyframes snake-rotate {
+            to { stroke-dashoffset: -1200; }
+        }
+
+        /* Animations */
+        @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(5%, 5%) scale(1.1); } }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        @keyframes shine-sweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+        @keyframes page-enter {
+            0% { opacity: 0; transform: scale(0.92); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+        @keyframes neon-pulse {
+            0%, 100% { filter: drop-shadow(0 0 2px rgba(59,130,246,0.4)); opacity: 0.9; }
+            50% { filter: drop-shadow(0 0 15px rgba(59,130,246,0.9)) brightness(1.3); opacity: 1; }
+        }
+        @keyframes blink-alert {
+            0%, 100% { opacity: 1; filter: brightness(1); }
+            50% { opacity: 0.6; filter: brightness(1.5); }
+        }
+        @keyframes dot-blink {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); box-shadow: 0 0 10px rgba(255,255,255,0.8); }
+        }
+
+        .animate-float { animation: float 20s infinite ease-in-out; }
+        .animate-shimmer { animation: shimmer 2s infinite linear; }
+        .page-transition { animation: page-enter 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .animate-neon { animation: neon-pulse 3s infinite ease-in-out; }
+        .animate-blink { animation: blink-alert 1s infinite; }
+        .animate-dot { animation: dot-blink 2s infinite ease-in-out; }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-blue-500 selection:text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const Icons = {
+            Zap: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>,
+            User: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
+            Lock: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>,
+            ArrowRight: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>,
+            Bell: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>,
+            LogOut: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>,
+            Activity: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>,
+            CheckCircle: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>,
+            ShieldCheck: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>,
+            ChevronLeft: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>,
+            Server: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>,
+            Alert: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>,
+            Eye: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>,
+            Cpu: () => <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="15" x2="23" y2="15"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="15" x2="4" y2="15"></line></svg>
+        };
+
+        const Background = () => (
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="orb w-[500px] h-[500px] bg-blue-600 top-[-100px] left-[-100px] animate-float"></div>
+                <div className="orb w-[400px] h-[400px] bg-purple-600 bottom-[-50px] right-[-50px] animate-float" style={{animationDelay: '-5s'}}></div>
+                <div className="orb w-[300px] h-[300px] bg-indigo-500 top-[40%] left-[30%] animate-float" style={{animationDelay: '-10s'}}></div>
+                <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"></div>
+                <div className="absolute inset-0 opacity-[0.05]" style={{backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`}}></div>
+            </div>
+        );
+
+        const AnimatedCounter = ({ value, colorClass }) => {
+            const [displayValue, setDisplayValue] = useState(value);
+            useEffect(() => {
+                let start = displayValue;
+                let end = value;
+                const duration = 1000;
+                const startTime = performance.now();
+                const animate = (currentTime) => {
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                    setDisplayValue(start + (end - start) * easeOutQuart);
+                    if (progress < 1) requestAnimationFrame(animate);
+                };
+                requestAnimationFrame(animate);
+            }, [value]);
+
+            return (
+                <span className={`text-4xl sm:text-5xl font-black tracking-tighter text-transparent bg-clip-text tabular-nums ${colorClass}`}>
+                    {Math.round(displayValue).toLocaleString()}
+                </span>
+            );
+        };
+
+        const LoginScreen = ({ username, setUsername, password, setPassword, handleLogin, loading, error }) => (
+            <div className="flex flex-col items-center justify-center min-h-screen p-4 relative z-10 page-transition">
+                <div className="glass-panel w-full max-w-sm rounded-[3rem] p-8 md:p-12 relative overflow-hidden animate-border">
+                    <div className="flex flex-col items-center mb-10 w-full">
+                        <div className="w-20 h-20 glass-panel rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/20 animate-neon">
+                            <div className="text-white w-10 h-10"><Icons.Zap /></div>
+                        </div>
+                        <h1 className="text-5xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-100 to-white/50 italic pr-2 w-full text-center">
+                            youtur
+                        </h1>
+                        <p className="text-blue-200/50 mt-2 text-[10px] font-black tracking-[0.6em] uppercase">systems v4.8</p>
+                    </div>
+
+                    <form onSubmit={handleLogin} className="space-y-5">
+                        <div className="relative group">
+                            <input type="text" className="glass-input w-full rounded-2xl py-4 pl-12 pr-4 text-white placeholder-white/30 outline-none focus:border-blue-500/50 transition-all duration-300" placeholder="Kullanıcı Adı" value={username} onChange={(e) => setUsername(e.target.value)} />
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-blue-400 w-5 h-5"><Icons.User /></div>
+                        </div>
+                        <div className="relative group">
+                            <input type="password" className="glass-input w-full rounded-2xl py-4 pl-12 pr-4 text-white placeholder-white/30 outline-none focus:border-blue-500/50 transition-all duration-300" placeholder="Şifre" value={password} onChange={(e) => setPassword(e.target.value)} />
+                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-blue-400 w-5 h-5"><Icons.Lock /></div>
+                        </div>
+                        {error && <div className="glass-panel bg-red-500/10 border-red-500/20 rounded-xl p-3 text-center"><p className="text-red-300 text-xs font-bold">{error}</p></div>}
+                        <button type="submit" disabled={loading} className="glass-button w-full py-4 rounded-2xl text-white font-black tracking-wider hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+                            {loading ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <>Sisteme Bağlan<div className="w-4 h-4"><Icons.ArrowRight /></div></>}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        );
+
+        const DashboardScreen = ({ username, handleLogout, setView, activeUsers, announcement }) => {
+            let statusLevel = "blue";
+            let alertText = "Aktif Kullanıcı";
+            let colorGradient = "bg-gradient-to-b from-white to-white/60";
+
+            if (activeUsers > 6000 && activeUsers <= 15000) {
+                statusLevel = "blue"; 
+                alertText = "BOOST MODE";
+            } else if (activeUsers > 15000 && activeUsers <= 20000) {
+                statusLevel = "orange";
+                alertText = "HIGH LOAD";
+            } else if (activeUsers > 20000 && activeUsers <= 27000) {
+                statusLevel = "red";
+                alertText = "HEAVY LOAD";
+                colorGradient = "bg-gradient-to-b from-orange-500 to-orange-300";
+            } else if (activeUsers > 27000) {
+                statusLevel = "red";
+                alertText = "OVERLOAD CHECK SERVER";
+                colorGradient = "bg-gradient-to-b from-red-600 to-red-400";
+            }
+
+            return (
+                <div className="min-h-screen relative z-10 flex flex-col p-4 md:p-6 max-w-md mx-auto page-transition">
+                    <header className="glass-panel rounded-[2rem] p-4 flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3 pl-2">
+                            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg animate-neon">
+                                <div className="w-5 h-5 text-white"><Icons.Zap /></div>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-lg font-black italic tracking-tighter">youtur</span>
+                                <span className="text-[8px] font-black uppercase tracking-[0.3em] text-blue-300/60">Systems</span>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <button className="w-10 h-10 glass-input rounded-xl flex items-center justify-center relative">
+                                <div className="w-5 h-5 text-white/70"><Icons.Bell /></div>
+                                <span className={`absolute top-2 right-2 w-2 h-2 rounded-full ${activeUsers > 6000 ? 'bg-red-500 animate-ping' : 'bg-blue-500'}`}></span>
+                            </button>
+                            <button onClick={handleLogout} className="w-10 h-10 glass-input bg-red-500/10 border-red-500/20 rounded-xl flex items-center justify-center">
+                                <div className="w-5 h-5 text-red-400"><Icons.LogOut /></div>
+                            </button>
+                        </div>
+                    </header>
+
+                    <main className="flex-1 flex flex-col gap-4">
+                        <div className="glass-panel rounded-[2.5rem] p-1 relative overflow-hidden transition-all duration-500">
+                            <svg className="snake-border-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="blue-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="#3b82f6" stopOpacity="0" />
+                                        <stop offset="50%" stopColor="#3b82f6" />
+                                        <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="0" y="0" width="100" height="100" rx="12" ry="12" vectorEffect="non-scaling-stroke" className={`snake-border-rect ${statusLevel}`} />
+                            </svg>
+
+                            <div className="bg-black/20 rounded-[2.3rem] p-6 relative overflow-hidden">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 ${activeUsers > 6000 ? 'bg-red-500/10 border-red-500/20' : 'bg-green-500/10 border-green-500/20'}`}>
+                                            <div className={`w-5 h-5 animate-pulse ${activeUsers > 6000 ? 'text-red-400' : 'text-green-400'}`}><Icons.Activity /></div>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Canlı Trafik</p>
+                                            <h2 className={`font-bold text-sm ${activeUsers > 6000 ? 'animate-blink' : 'text-white'}`} style={{ color: activeUsers > 20000 ? '#ef4444' : (activeUsers > 6000 ? '#f97316' : '#fff') }}>
+                                                {alertText}
+                                            </h2>
+                                        </div>
+                                    </div>
+                                    <div className={`flex items-center gap-2 px-3 py-1 glass-input rounded-full`}>
+                                        <div className={`w-1.5 h-1.5 rounded-full animate-pulse ${activeUsers > 6000 ? 'bg-red-500' : 'bg-green-500'}`}></div>
+                                        <span className="text-[9px] font-bold uppercase tracking-wide">Live</span>
+                                    </div>
+                                </div>
+                                <div className="mt-4 flex items-baseline gap-2 justify-center w-full px-2">
+                                    <AnimatedCounter value={activeUsers} colorClass={colorGradient} />
+                                    <span className="text-sm font-bold text-white/30 shrink-0">/ 40k</span>
+                                </div>
+                                <div className="w-full h-1.5 bg-white/10 rounded-full mt-4 overflow-hidden">
+                                    <div className={`h-full transition-all duration-1000 ease-out ${activeUsers > 27000 ? 'bg-red-500' : (activeUsers > 6000 ? 'bg-orange-500' : 'bg-blue-500')}`} style={{ width: `${Math.min(100, (activeUsers / 40000) * 100)}%` }}></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="glass-panel animate-announcement rounded-[2rem] p-5 relative overflow-hidden flex flex-col gap-3">
+                            <div className="flex items-center gap-3">
+                                <div className="w-2 h-2 rounded-full bg-white animate-dot"></div>
+                                <h4 className="text-xs font-black uppercase tracking-widest text-blue-400">Canlı Duyuru</h4>
+                            </div>
+                            <div className="bg-black/20 p-4 rounded-xl border border-white/5">
+                                <p className="text-sm font-medium text-white/90 leading-relaxed italic">
+                                    "{announcement}"
+                                </p>
+                            </div>
+                        </div>
+
+                        <button onClick={() => setView('profile')} className="glass-panel p-4 rounded-2xl flex items-center justify-between group hover:bg-white/5 transition-all active:scale-[0.98]">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                                    <div className="w-6 h-6 text-white"><Icons.User /></div>
+                                </div>
+                                <div className="text-left">
+                                    <h4 className="font-bold text-white">Profil Ayarları</h4>
+                                    <p className="text-[10px] text-white/40">@{username}</p>
+                                </div>
+                            </div>
+                            <div className="w-8 h-8 rounded-full glass-input flex items-center justify-center"><div className="w-4 h-4 text-white/50"><Icons.ArrowRight /></div></div>
+                        </button>
+
+                        <button onClick={() => setView('security')} className="glass-panel p-4 rounded-2xl flex items-center justify-between group hover:bg-white/5 transition-all active:scale-[0.98]">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                                    <div className="w-6 h-6 text-white"><Icons.ShieldCheck /></div>
+                                </div>
+                                <div className="text-left">
+                                    <h4 className="font-bold text-white">Güvenlik Merkezi</h4>
+                                    <p className="text-[10px] text-white/40">Sistem Sağlığı</p>
+                                </div>
+                            </div>
+                            <div className="w-8 h-8 rounded-full glass-input flex items-center justify-center"><div className="w-4 h-4 text-white/50"><Icons.ArrowRight /></div></div>
+                        </button>
+                    </main>
+                </div>
+            );
+        };
+
+        const SecurityScreen = ({ setView, activeUsers }) => {
+            let cpu = 12;
+            let ram = 18;
+            let status = "TEMİZ";
+            let color = "text-green-400";
+            let modeName = "Standard Mode";
+
+            if (activeUsers <= 6000) {
+                cpu = 12 + Math.floor(activeUsers / 1000);
+                ram = 18 + Math.floor(activeUsers / 800);
+            } else if (activeUsers > 6000 && activeUsers <= 15000) {
+                modeName = "Boost Mode";
+                cpu = 45 + Math.floor((activeUsers-6000) / 300);
+                ram = 52 + Math.floor((activeUsers-6000) / 400);
+            } else if (activeUsers > 15000 && activeUsers <= 20000) {
+                modeName = "High Load";
+                cpu = 75 + Math.floor((activeUsers-15000) / 200);
+                ram = 78 + Math.floor((activeUsers-15000) / 250);
+                status = "DİKKAT";
+                color = "text-orange-400";
+            } else if (activeUsers > 20000 && activeUsers <= 27000) {
+                modeName = "Heavy Load";
+                cpu = 95; 
+                ram = 90;
+                status = "RİSKLİ";
+                color = "text-red-400 animate-blink";
+            } else if (activeUsers > 27000) {
+                modeName = "Overload";
+                cpu = 98;
+                ram = 95;
+                status = "KRİTİK";
+                color = "text-red-600 animate-blink";
+            }
+
+            return (
+                <div className="min-h-screen relative z-10 flex flex-col p-6 max-w-md mx-auto page-transition">
+                    <header className="flex items-center gap-4 mb-8">
+                        <button onClick={() => setView('dashboard')} className="w-10 h-10 glass-panel rounded-xl flex items-center justify-center active:scale-90 transition-all">
+                            <div className="w-5 h-5 text-white"><Icons.ChevronLeft /></div>
+                        </button>
+                        <h2 className="text-2xl font-black italic tracking-tighter">Güvenlik</h2>
+                    </header>
+
+                    <div className="flex flex-col gap-6">
+                        <div className="glass-panel rounded-[2.5rem] p-8 relative overflow-hidden text-center">
+                            <div className="absolute inset-0 z-0">
+                                <div className="absolute w-full h-[50%] bg-gradient-to-b from-blue-500/0 via-blue-500/10 to-blue-500/0 animate-scan"></div>
+                            </div>
+                            <div className="relative z-10">
+                                <div className="w-20 h-20 mx-auto bg-blue-500/10 rounded-full flex items-center justify-center border border-blue-500/30 mb-4 shadow-xl">
+                                    <div className="w-10 h-10 text-blue-400"><Icons.ShieldCheck /></div>
+                                </div>
+                                <h3 className="text-xl font-black text-white">{modeName}</h3>
+                                <div className={`mt-2 px-3 py-1 rounded-full border border-current bg-current/5 inline-block ${color}`}>
+                                    <span className="text-[10px] font-bold tracking-widest">{status}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="glass-panel p-6 rounded-[2rem] flex flex-col items-center gap-2">
+                                <div className="w-10 h-10 bg-orange-500/10 rounded-xl flex items-center justify-center text-orange-400"><div className="w-6 h-6"><Icons.Cpu /></div></div>
+                                <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">CPU</p>
+                                <p className={`text-2xl font-black ${cpu > 90 ? 'text-red-500' : 'text-white'}`}>%{cpu}</p>
+                            </div>
+                            <div className="glass-panel p-6 rounded-[2rem] flex flex-col items-center gap-2">
+                                <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400"><div className="w-6 h-6"><Icons.Server /></div></div>
+                                <p className="text-[10px] font-black uppercase text-white/30 tracking-widest">RAM</p>
+                                <p className={`text-2xl font-black ${ram > 90 ? 'text-red-500' : 'text-white'}`}>%{ram}</p>
+                            </div>
+                        </div>
+
+                        <div className="glass-panel rounded-[2rem] p-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <h4 className="text-xs font-black uppercase text-white/40 tracking-widest">Kapasite Doluluk</h4>
+                                <span className="text-xs font-bold">%{Math.round((activeUsers/40000)*100)}</span>
+                            </div>
+                            <div className="w-full h-3 bg-black/40 rounded-full overflow-hidden">
+                                <div className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-red-500 transition-all duration-1000" style={{ width: `${(activeUsers/40000)*100}%` }}></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ProfileScreen = ({ username, setView, baseUserCount, setBaseUserCount, announcement, setAnnouncement }) => {
+            const [showPrivate, setShowPrivate] = useState(false);
+
+            return (
+                <div className="min-h-screen relative z-10 flex flex-col p-6 max-w-md mx-auto page-transition">
+                    <header className="flex items-center gap-4 mb-8">
+                        <button onClick={() => setView('dashboard')} className="w-10 h-10 glass-panel rounded-xl flex items-center justify-center active:scale-90 transition-all">
+                            <div className="w-5 h-5 text-white"><Icons.ChevronLeft /></div>
+                        </button>
+                        <h2 className="text-2xl font-black italic tracking-tighter">Profil</h2>
+                    </header>
+
+                    <div className="glass-panel rounded-[3rem] p-8 flex flex-col items-center text-center relative overflow-hidden transition-all duration-500">
+                        <div className="w-32 h-32 rounded-full p-[2px] bg-gradient-to-b from-white/30 to-transparent mb-6">
+                            <div className="w-full h-full rounded-full bg-black flex items-center justify-center relative overflow-hidden shadow-2xl">
+                                <div className="absolute inset-0 bg-blue-500/5 animate-pulse"></div>
+                                <div className="relative z-10 flex flex-col items-center">
+                                    <span className="text-3xl font-black text-white italic tracking-tighter">ROOT</span>
+                                    <div className="w-8 h-[2px] bg-blue-500 mt-1"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 className="text-3xl font-black italic tracking-tighter">{username}</h3>
+                        <div className="mt-2 px-4 py-1.5 glass-input rounded-full border border-blue-500/30 text-blue-400 text-[10px] font-black uppercase">Yönetici</div>
+
+                        <div className="w-full mt-8 flex flex-col gap-3">
+                            <div className="glass-input p-4 rounded-2xl flex justify-between items-center text-white/40">
+                                <span className="text-[10px] font-bold uppercase tracking-widest">Sistem ID</span>
+                                <span className="font-mono text-xs text-white">#YTR-40K-01</span>
+                            </div>
+                            
+                            <div className="mt-4">
+                                <button onClick={() => setShowPrivate(!showPrivate)} className={`shine-button w-full p-4 rounded-2xl flex justify-between items-center transition-all duration-300 ${showPrivate ? 'border-blue-400 shadow-xl' : ''}`}>
+                                    <div className="shine-effect"></div>
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/90 flex items-center gap-2 relative z-10">
+                                        <div className="w-4 h-4"><Icons.Eye /></div>
+                                        Private Zone
+                                    </span>
+                                    <span className="font-bold text-xs relative z-10 text-white/40">{showPrivate ? 'AÇIK' : 'KAPALI'}</span>
+                                </button>
+                            </div>
+
+                            {showPrivate && (
+                                <div className="glass-panel p-6 rounded-2xl mt-2 border-blue-500/20 flex flex-col gap-5">
+                                    <div>
+                                        <div className="flex justify-between items-center mb-4">
+                                            <span className="text-xs font-bold text-white">Trafik Gücü</span>
+                                            <span className="text-xs font-mono text-blue-400 font-black">{baseUserCount.toLocaleString()}</span>
+                                        </div>
+                                        <input type="range" min="0" max="40000" step="100" value={baseUserCount} onChange={(e) => setBaseUserCount(Number(e.target.value))} className="w-full" />
+                                        <div className="flex justify-between mt-2 text-[8px] text-white/30 font-black tracking-widest">
+                                            <span>0</span>
+                                            <span className="text-red-500">MAX POOL: 40K</span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs font-bold text-white uppercase tracking-widest text-[9px]">Duyuru Editörü</span>
+                                            <div className="w-3 h-3 text-blue-400"><Icons.Zap /></div>
+                                        </div>
+                                        <textarea 
+                                            value={announcement}
+                                            onChange={(e) => setAnnouncement(e.target.value)}
+                                            className="glass-input w-full rounded-xl p-3 text-xs text-white outline-none focus:border-blue-500/50 transition-all h-20 resize-none"
+                                            placeholder="Bir şeyler karala balımmmm..."
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [view, setView] = useState('login');
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+            
+            // Alicimmmm Memory Logic burası balımmmm
+            const getInitialCount = () => {
+                const saved = localStorage.getItem('youtur_base_count');
+                return saved ? Number(saved) : 4200;
+            };
+            const getInitialAnnounce = () => {
+                const saved = localStorage.getItem('youtur_announce');
+                return saved || "Sistem güncellemeleri başarıyla tamamlandı. %100 Performans ile hizmetinizdeyiz.";
+            };
+
+            const [baseUserCount, setBaseUserCount] = useState(getInitialCount);
+            const [activeUsers, setActiveUsers] = useState(getInitialCount);
+            const [announcement, setAnnouncement] = useState(getInitialAnnounce);
+
+            useEffect(() => {
+                localStorage.setItem('youtur_base_count', baseUserCount);
+                localStorage.setItem('youtur_announce', announcement);
+            }, [baseUserCount, announcement]);
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    setActiveUsers(prev => {
+                        const noise = Math.floor(Math.random() * 101) - 50; 
+                        let next = baseUserCount + noise;
+                        if (next < 0) next = 0;
+                        if (next > 40000) next = 40000;
+                        return next;
+                    });
+                }, 2000); 
+                return () => clearInterval(interval);
+            }, [baseUserCount]);
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+                setTimeout(() => {
+                    if (username === 'root' && password === 'iremim') {
+                        setView('dashboard');
+                    } else {
+                        setError('Yetki Reddedildi Balımmmm!');
+                    }
+                    setLoading(false);
+                }, 1500);
+            };
+
+            const handleLogout = () => {
+                setView('login');
+                setUsername('');
+                setPassword('');
+            };
+
+            return (
+                <>
+                    <Background />
+                    {view === 'login' && <LoginScreen username={username} setUsername={setUsername} password={password} setPassword={setPassword} handleLogin={handleLogin} loading={loading} error={error} />}
+                    {view === 'dashboard' && <DashboardScreen username={username} handleLogout={handleLogout} setView={setView} activeUsers={activeUsers} announcement={announcement} />}
+                    {view === 'profile' && <ProfileScreen username={username} setView={setView} baseUserCount={baseUserCount} setBaseUserCount={setBaseUserCount} announcement={announcement} setAnnouncement={setAnnouncement} />}
+                    {view === 'security' && <SecurityScreen setView={setView} activeUsers={activeUsers} />}
+                </>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
