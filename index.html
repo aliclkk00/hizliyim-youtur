@@ -475,9 +475,9 @@
             const passcodeRef = useRef(null); // KLAVYEYİ KAPATMAK İÇİN REFERANS EKLENDİ BALIM
 
             // Admin Panel States
-            const [activeUsers, setActiveUsers] = useState(8420);
-            const [baseCount, setBaseCount] = useState(8400);
-            const [announcement, setAnnouncement] = useState("Sistem v5.1 sürümüne güncellendi. Tüm veriler hizliyim-core v5.1 ile şifreleniyor.");
+            const [activeUsers, setActiveUsers] = useState(10420);
+            const [baseCount, setBaseCount] = useState(10400);
+            const [announcement, setAnnouncement] = useState("Sistem core v5.3 sürümüne güncellendi. Tüm veriler hizliyim-core v5.3 ile şifreleniyor.");
             const [showAccountMenu, setShowAccountMenu] = useState(false);
             const [showSettings, setShowSettings] = useState(false);
             const [isExiting, setIsExiting] = useState(false);
@@ -515,7 +515,7 @@
                     const noise = Math.floor(Math.random() * 100) - 50;
                     setActiveUsers(prev => {
                         let val = baseCount + noise;
-                        if(val > 20000) val = 20000;
+                        if(val > 30000) val = 30000;
                         if(val < 0) val = 0;
                         return val;
                     });
@@ -860,7 +860,7 @@
                                         <div className="w-full h-2 bg-black/40 rounded-full mt-6 overflow-hidden border border-white/10">
                                             <div 
                                                 className={`h-full transition-all duration-1000 ${isOverload ? 'bg-red-500' : 'bg-[#027AFF]'}`} 
-                                                style={{ width: `${(activeUsers / 20000) * 100}%` }}
+                                                style={{ width: `${(activeUsers / 30000) * 100}%` }}
                                             ></div>
                                         </div>
                                     </div>
